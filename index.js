@@ -81,6 +81,32 @@ const init = async () => {
             next(error);
         }
     })
+
+    app.delete("/api/flavors/:id", async(req, res, next) => {
+        try {
+            const SQL = /*SQL*/ `
+            DELETE from flavors
+            WHERE id=$1
+            `;
+            await client.query(SQL, [req.params.id]);
+            res.sendStatus(204);
+        } catch (error) {
+            next(error)
+        }
+    })
+    app.put("/api/flavors/:id", async(req, res, next) => {
+        try {
+            const SQL = /*SQL*/ `
+            UPDATE flavors
+            SET name=$1, is_favorite=$2, updated_at=now()
+            Where id=$3 RETURNING *
+            `;
+            const response = await client.query(SQL, [req.body.name, req.body.is_favorite, req.params.id]);
+            res.send(response.rows[0]);
+        } catch (error) {
+            next(error);
+        }
+    })
 };
 
 init();
